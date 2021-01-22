@@ -145,7 +145,7 @@ contract Admin {
     {
         Proposal storage proposal = proposals[_proposalIndex];
 
-        require(proposal.expires <= block.timestamp, "proposal expired");
+        require(proposal.expires >= block.timestamp, "proposal expired");
 
         proposal.numConfirmations += 1;
         proposalIsConfirmed[_proposalIndex][msg.sender] = true;
@@ -164,7 +164,7 @@ contract Admin {
     {
         Proposal storage proposal = proposals[_proposalIndex];
 
-        require(proposal.expires <= block.timestamp, "proposal expired");
+        require(proposal.expires >= block.timestamp, "proposal expired");
         require(
             proposalIsConfirmed[_proposalIndex][msg.sender],
             "proposal not confirmed"
@@ -187,7 +187,7 @@ contract Admin {
     {
         Proposal storage proposal = proposals[_proposalIndex];
 
-        require(proposal.expires <= block.timestamp, "proposal expired");
+        require(proposal.expires >= block.timestamp, "proposal expired");
         require(
             proposal.numConfirmations >= confirmationsRequired,
             "cannot execute proposal"
