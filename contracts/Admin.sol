@@ -13,9 +13,8 @@ contract Admin {
     struct Proposal {
         uint8 purpose;
         bool executed;
-        address newOwner;
-        address removeOwner;
-        uint256 removeOwnerIndex;
+        address owner;
+        uint256 ownerIndex;
         uint256 newConfirmationsRequired;
         uint256 expires;
         uint256 numConfirmations;
@@ -94,7 +93,7 @@ contract Admin {
         require(newOwner != address(0), "invalid owner");
         require(!isOwner[newOwner], "owner not unique");
 
-        _submitProposal(0, newOwner, address(0), 0, 0);
+        _submitProposal(0, newOwner, 0, 0);
     }
 
     /// @notice submit a proposal for an owner to be removed
@@ -111,7 +110,7 @@ contract Admin {
             "owner index not equal to address"
         );
 
-        _submitProposal(1, address(0), removeOwner, removeOwnerIndex, 0);
+        _submitProposal(1, removeOwner, removeOwnerIndex, 0);
     }
 
     /// @notice submit a proposal to modify the confirmations required
@@ -131,7 +130,7 @@ contract Admin {
             "same as previous confirmations required"
         );
 
-        _submitProposal(2, address(0), address(0), 0, newConfirmationsRequired);
+        _submitProposal(2, address(0), 0, newConfirmationsRequired);
     }
 
     /// @notice confirm a proposal, each owner can only confirm once
@@ -195,17 +194,17 @@ contract Admin {
         );
 
         if (proposal.purpose == 0) {
-            isOwner[proposal.newOwner] = true;
-            owners.push(proposal.newOwner);
+            isOwner[proposal.owner] = true;
+            owners.push(proposal.owner);
         } else if (proposal.purpose == 1) {
-            require(isOwner[proposal.removeOwner], "address is not owner");
+            require(isOwner[proposal.owner], "address is not owner");
             require(
-                proposal.removeOwner == owners[proposal.removeOwnerIndex],
+                proposal.owner == owners[proposal.ownerIndex],
                 "owner index not equal to address"
             );
 
-            isOwner[proposal.removeOwner] = false;
-            owners[proposal.removeOwnerIndex] = owners[owners.length - 1];
+            isOwner[proposal.owner] = false;
+            owners[proposal.ownerIndex] = owners[owners.length - 1];
             owners.pop();
         } else if (proposal.purpose == 2) {
             require(
@@ -239,9 +238,8 @@ contract Admin {
         returns (
             uint8 purpose,
             bool executed,
-            address newOwner,
-            address removeOwner,
-            uint256 removeOwnerIndex,
+            address owner,
+            uint256 ownerIndex,
             uint256 newConfirmationsRequired,
             uint256 expires,
             uint256 numConfirmations
@@ -252,9 +250,8 @@ contract Admin {
         return (
             proposal.purpose,
             proposal.executed,
-            proposal.newOwner,
-            proposal.removeOwner,
-            proposal.removeOwnerIndex,
+            proposal.owner,
+            proposal.ownerIndex,
             proposal.newConfirmationsRequired,
             proposal.expires,
             proposal.numConfirmations
@@ -263,25 +260,22 @@ contract Admin {
 
     /// @notice submit a proposal to the array
     /// @param _purpose 0 - add owner, 1 - remove owner, 2 - change confirmations
-    /// @param _newOwner owner to add
-    /// @param _removeOwner owner to remove
-    /// @param _removeOwnerIndex index of owner to remove
+    /// @param _owner owner to add or remove
+    /// @param _ownerIndex index of owner to remove
     /// @param _newConfirmationsRequired new confirmations required value
     /// @dev function is private
     function _submitProposal(
         uint8 _purpose,
-        address _newOwner,
-        address _removeOwner,
-        uint256 _removeOwnerIndex,
+        address _owner,
+        uint256 _ownerIndex,
         uint256 _newConfirmationsRequired
     ) private {
         proposals.push(
             Proposal({
                 purpose: _purpose,
                 executed: false,
-                newOwner: _newOwner,
-                removeOwner: _removeOwner,
-                removeOwnerIndex: _removeOwnerIndex,
+                owner: _owner,
+                ownerIndex: _ownerIndex,
                 newConfirmationsRequired: _newConfirmationsRequired,
                 expires: block.timestamp + proposalExpiry,
                 numConfirmations: 0
