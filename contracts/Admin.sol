@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.3;
 
-/// @author gg2001
+/// @author Gautham Ganesh Elango
 /// @title Administration contract for a multisig contract
 contract Admin {
     address[] public owners;
@@ -153,7 +153,7 @@ contract Admin {
         emit ConfirmProposal(msg.sender, _proposalIndex);
     }
 
-    /// @notice revoke a proposal confirmation, the owner must have confirmed already to revoke
+    /// @notice revoke a proposal confirmation, the owner must have confirmed already
     /// @param _proposalIndex index of proposal in proposals array
     /// @dev proposal must exist and not have been executed
     function revokeProposal(uint256 _proposalIndex)
